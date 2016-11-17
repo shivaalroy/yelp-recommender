@@ -1,3 +1,6 @@
 yelp-data
 curated-data
 .DS_Store
+_snap.so
+snap.py
+snap.pyc

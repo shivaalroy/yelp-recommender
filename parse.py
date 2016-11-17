@@ -82,10 +82,12 @@ def parseuser(json_file, userids):
                         edges.append(user['user_id']+'\t'+friend)
     print 'Total Users:', len(data)
 
-    with open('curated-data/user_data.json','w') as data_file:
+    with open('curated-data/user_data.json','w') as data_file, open('curated-data/user_nids.json') as user_nids_file:
         for user in data:
             data_file.write(dumps(user, data_file))
             data_file.write('\n')
+            hash(user['user_id']) % 100000
+            user_nids_file.write()
     with open('curated-data/friends.txt','w') as edges_file:
         edges_file.write('#user_id\tfriend\n')
         for edge in edges:
