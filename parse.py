@@ -62,6 +62,7 @@ def parsereview(json_file, businessids):
             data_file.write(dumps(review, data_file))
             data_file.write('\n')
     with open('curated-data/reviews.txt','w') as edges_file:
+        edges_file.write('#user_id\tbusiness_id\n')
         for edge in edges:
             edges_file.write(edge)
             edges_file.write('\n')
@@ -85,6 +86,7 @@ def parseuser(json_file, userids):
             data_file.write(dumps(user, data_file))
             data_file.write('\n')
     with open('curated-data/friends.txt','w') as edges_file:
+        edges_file.write('#user_id\tfriend\n')
         for edge in edges:
             edges_file.write(edge)
             edges_file.write('\n')
