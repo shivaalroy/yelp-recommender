@@ -2,11 +2,12 @@
 Extracts features for restaurant businesses in the Yelp Challenge Dataset
 """
 
+import os.path
+import random
 import sys
 from json import loads
 from json import dumps
 from re import sub
-import random
 
 def parsebusiness(json_file, numBusinesses=100):
     data = []
@@ -17,7 +18,7 @@ def parsebusiness(json_file, numBusinesses=100):
             if ('Restaurants' in business['categories']) and (business['city'] == 'Las Vegas'):
                 data.append(business)
                 localeIds.add(business['business_id'])
-    print 'Total Restaurants: ', len(data)
+    print 'Total Restaurants:', len(data)
 
     sampled_data = random.sample(data, numBusinesses)
     print 'Shrunk it to:', len(sampled_data)
@@ -32,9 +33,9 @@ def parsebusiness(json_file, numBusinesses=100):
             data_file.write('\n')
     return businessids, localeIds
 
-def filterLocaleReviews(json_file, localeIds):
+def filterLocaleReviews(json_file, newFilename, localeIds):
     lineCount = 0
-    with open(json_file, 'r') as readFile, open('yelp-data/las_vegas_reviews.json', 'w') as writeFile:
+    with open(json_file, 'r') as readFile, open(newFilename, 'w') as writeFile:
         for line in readFile:
             review = loads(line)
             if review['business_id'] in localeIds:
@@ -93,18 +94,22 @@ def parseuser(json_file, userids):
 
 def main(argv):
     f = 'yelp-data/yelp_academic_dataset_business.json'
-    print 'Parsing ' + f
+    print 'Parsing', f
     businessids, localeIds = parsebusiness(f, 100)
-    print 'Done parsing ' + f
-    f2 = 'yelp-data/las_vegas_reviews.json'
-    print 'Parsing ' + f2
+    print 'Done parsing', f
+    old_f2 = 'yelp-data/yelp_academic_dataset_review.json'
+    f2 = 'yelp-data/las_vegas_review.json'
+    if not os.path.isfile(f2):
+        print f2, 'not found, parsing', old_f2
+        filterLocaleReviews(old_f2, f2, localeIds)
+        print 'Done parsing', old_f2, 'created'
+    print 'Parsing', f2
     userids = parsereview(f2, businessids)
     print 'Done parsing', f2
     f3 = 'yelp-data/yelp_academic_dataset_user.json'
-    print 'Parsing ' + f3
+    print 'Parsing', f3
     parseuser(f3, userids)
     print 'Done parsing', f3
-    # filterLocaleReviews(f2, localeIds)
 
 if __name__ == '__main__':
     main(sys.argv)
