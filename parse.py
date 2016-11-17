@@ -6,6 +6,7 @@ import sys
 from json import loads
 from json import dumps
 from re import sub
+import random
 
 def parsebusiness(json_file):
     businesses = []
@@ -22,6 +23,9 @@ def parsebusiness(json_file):
             businessids.add(business['business_id'])
 
     print 'Total Restaurants: ', len(data)
+    random.shuffle(data)
+    data = data[:100]
+    print 'Shrunk it to:', len(data)
     data_file = open('yelp_data/restaurant_data.json','w')
     for business in data:
         data_file.write(dumps(business, data_file))
