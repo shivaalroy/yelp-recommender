@@ -2,19 +2,18 @@
 
 import csv
 
-edgeListFile = "./curated-data/edge_list.json"
-reviewsFile = "./curated-data/reviews.txt"
-
 # Given a user or business id, hash and mod to get its node id
 def getNId(id):
-    return hash(id) % 100000
+	return hash(id) % 100000
 
-# Creates the edge list file of node ids for users and businesses
-def createEdgeListFile():
-    with open(reviewsFile, 'r') as readFile, open(edgeListFile, 'w') as writeFile:
-        next(readFile) # skip heading
-        reader = csv.reader(readFile, delimiter='\t')
-        for userId, businessId in reader:
-            writeFile.write(str(getNId(userId))+'\t'+str(getNId(businessId)))
-            writeFile.write('\n')
-    return edgeListFile
+def getNIdDict(infile):
+	NId_mapping = {}
+	all_ids = set()
+	with open(infile, 'r') as readFile:
+		next(readFile)
+		reader = csv.reader(readFile, delimiter='\t')
+		for user_id, business_id in reader:
+			all_ids.add(user_id)
+			all_ids.add(business_id)
+
+	return { getNId(data_id): data_id for data_id in all_ids }

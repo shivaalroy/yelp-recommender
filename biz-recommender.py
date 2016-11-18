@@ -27,7 +27,7 @@ def getBusinessAttributes():
 	return attrDict
 
 def getBusinessRecs(G):
-    pass
+	pass
 
 def main(argv):
 	edgeListFile = createEdgeListFile()
@@ -42,4 +42,4 @@ def main(argv):
 	# return the k closest businesses
 
 if __name__ == '__main__':
-    main(sys.argv)
+	main(sys.argv)
