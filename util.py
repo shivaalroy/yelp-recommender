@@ -17,3 +17,9 @@ def getNIdDict(infile):
 			all_ids.add(business_id)
 
 	return { getNId(data_id): data_id for data_id in all_ids }
+
+# Returns a tuple of user and business node ids
+def getUserBizNIds(G, businesses):
+	userNIds = [NI.GetId() for NI in G.Nodes() if NI.GetId() not in businesses]
+	bizNIds = [NI.GetId() for NI in G.Nodes() if NI.GetId() in businesses]
+	return (userNIds, bizNIds)
