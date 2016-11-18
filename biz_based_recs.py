@@ -64,7 +64,7 @@ class BizBasedRecs(object):
 	def score(self, dist):
 		return math.exp(-dist)
 
-	def getBusinessRecs(self, attrDict, k, scoreFunction):
+	def getBusinessRecs(self, attrDict, k, scoreFunction, scoresFile):
 		userNIds, businessNIds = getUserBizNIds(self.G, attrDict.keys())
 		recs = {}
 		for uid in userNIds:
@@ -86,19 +86,22 @@ class BizBasedRecs(object):
 			# normalize scores for a given user
 			for bid in topKBIds:
 				recs[tuple(sorted((uid, bid)))] = bizScores[bid] / float(max(bizScores.values()))
-		print recs
+
+		# with open(scoresFile,'w') as scores_file:
+		# 	scores_file.write(dumps(recs))
+
 		return recs
 
 	# Returns the top k recommendations for each user
-	def getRecommendations(self, k, weightedMeans=False, weightedBusinesses=False, scoreFunction=None):
+	def getRecommendations(self, k, weightedMeans=False, weightedBusinesses=False, scoreFunction=None, scoresFile='curated-data/scores.json'):
 		# Loop through the businesses once to get attribute-vindex mapping
 		AttrToIndx = self.getAttrIndxMapping()
-		
+
 		# for each business, calculate vectorized form of business attributes
 		attrDict = self.getBusinessAttributes(AttrToIndx)
-		
+
 		# Get business recs for each user
-		return self.getBusinessRecs(attrDict, k, scoreFunction)
+		return self.getBusinessRecs(attrDict, k, scoreFunction, scoresFile=scoresFile)
 
 def main(argv):
 	G = snap.LoadEdgeList(snap.PUNGraph, Const.review_edge_list, 0, 1)
