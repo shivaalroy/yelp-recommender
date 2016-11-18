@@ -46,6 +46,7 @@ def parseReview(json_infile, review_outfile, user_business_outfile, min_reviews)
 			edges_file.write('\n')
 	return set(user_ids), business_ids
 
+
 def parseUser(json_infile, user_outfile, friend_outfile, user_ids):
 	users = []
 	edges = []
@@ -84,6 +85,7 @@ def parseBusiness(json_infile, business_outfile, business_ids):
 			businesses_file.write(dumps(business))
 			businesses_file.write('\n')
 
+
 def filterLocaleReviews(json_infile, locale_outfile):
 	locale_ids = set()
 	with open(json_infile, 'r') as f:
@@ -103,8 +105,6 @@ def filterLocaleReviews(json_infile, locale_outfile):
 	print 'Las Vegas reviews:', lineCount
 
 
-
-
 def createEdgeList(user_biz_infile, edge_outfile):
 	all_ids = set()
 	with open(user_biz_infile, 'r') as readFile, open(edge_outfile, 'w') as writeFile:
@@ -118,6 +118,7 @@ def createEdgeList(user_biz_infile, edge_outfile):
 		if util.GetNId(str_id) in hash_ids: exit('--------ERROR--------')
 		hash_ids.add(util.getNId(user_id))
 		hash_ids.add(util.getNId(business_id))
+
 
 def main(argv):
 	if not os.path.isfile(Const.las_vegas_review):
@@ -136,7 +137,6 @@ def main(argv):
 	print 'Parsing', Const.yelp_business
 	parseBusiness(Const.yelp_business, Const.curated_business, business_ids)
 	print 'Done parsing', Const.yelp_business
-
 
 	print 'Creating edge lists'
 	createEdgeList(Const.review_mapping, Const.review_edge_list)
