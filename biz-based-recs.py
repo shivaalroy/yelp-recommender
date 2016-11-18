@@ -4,7 +4,6 @@
 from const import Const
 from json import dumps, loads
 import numpy as np
-import operator
 import snap
 import sys
 import types

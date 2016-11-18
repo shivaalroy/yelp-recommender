@@ -109,6 +109,7 @@ def createEdgeList(user_biz_infile, edge_outfile):
 	all_ids = set()
 	with open(user_biz_infile, 'r') as readFile, open(edge_outfile, 'w') as writeFile:
 		next(readFile) # skip heading
+		writeFile.write('#user_id\tbusiness_id\n')
 		reader = csv.reader(readFile, delimiter='\t')
 		for user_id, business_id in reader:
 			writeFile.write(str(util.getNId(user_id))+'\t'+str(util.getNId(business_id))+'\n')
@@ -120,7 +121,7 @@ def createEdgeList(user_biz_infile, edge_outfile):
 		hash_ids.add(util.getNId(business_id))
 
 
-def main(argv):
+def main():
 	if not os.path.isfile(Const.las_vegas_review):
 		print Const.las_vegas_review, 'not found, parsing', Const.yelp_review
 		filterLocaleReviews(Const.yelp_review, Const.las_vegas_review)
@@ -143,5 +144,4 @@ def main(argv):
 	createEdgeList(Const.friend_mapping, Const.friend_edge_list)
 	print 'Done creating edge lists'
 
-if __name__ == '__main__':
-	main(sys.argv)
+if __name__ == '__main__': main()
