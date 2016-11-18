@@ -25,10 +25,10 @@ def main(argv):
 	G = snap.LoadEdgeList(snap.PUNGraph, Const.review_edge_list, 0, 1)
 	userNIds = list(util.getNIdDict(Const.review_mapping)[1])
 	deletedEdges = set(deleteEdgeFromNode(G, G.GetNI(NId)) for NId in userNIds)
-	predictor = BizBasedRecs(G,1,True,True,scorefn)
-	BizBasedRecs.getRecommendations()
-
-
+	recommender = BizBasedRecs(G)
+	recommendations = recommender.getRecommendations(k=1)
+	diff = deletedEdges - set(recommendations)
+	print len(diff) / float(len(deletedEdges))
 
 
 if __name__ == '__main__': main(sys.argv)
