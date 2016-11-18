@@ -12,10 +12,12 @@ import types
 from util import *
 
 class BizBasedRecs(object):
+	def __init__(self, G):
+		self.G = G
 
 	# Computes vectorized form business attributes
 	# Returns: Map {business_nid: attribute vector}
-	def getBusinessAttributes(self, G, AttrToIndx):
+	def getBusinessAttributes(self, AttrToIndx):
 		attrDict = {}
 		# load business metadata
 		with open(Const.curated_business, 'r') as f:
@@ -31,7 +33,7 @@ class BizBasedRecs(object):
 							attrVec[AttrToIndx[item]] = int(val[item])
 				nid = getNId(business['business_id'])
 				attrDict[getNId(business['business_id'])] = attrVec
-		edgeIds = set([NI.GetId() for NI in G.Nodes()])
+		edgeIds = set([NI.GetId() for NI in self.G.Nodes()])
 		bizIds = set(attrDict.keys())
 		return attrDict
 
@@ -62,18 +64,18 @@ class BizBasedRecs(object):
 	def score(self, dist):
 		return math.exp(-dist)
 
-	def getBusinessRecs(self, G, attrDict, k, scoreFunction):
-		userNIds, businessNIds = getUserBizNIds(G, attrDict.keys())
+	def getBusinessRecs(self, attrDict, k, scoreFunction):
+		userNIds, businessNIds = getUserBizNIds(self.G, attrDict.keys())
 		recs = {}
 		for uid in userNIds:
-			UI = G.GetNI(uid)
+			UI = self.G.GetNI(uid)
 			businesses = [UI.GetNbrNId(n) for n in xrange(UI.GetDeg())] # get reviewed businesses
 			avgAttr = self.getAvgAttr(businesses, attrDict)
 			# print avgAttr
 			bizScores = {}
 			for bid in businessNIds:
 				if bid not in businesses:
-					BI = G.GetNI(bid)
+					BI = self.G.GetNI(bid)
 					dist = np.linalg.norm(avgAttr - np.array(attrDict[bid]))
 					# compute the scores using the scoring function
 					if scoreFunction is not None:
@@ -83,28 +85,25 @@ class BizBasedRecs(object):
 			topKBIds = sorted(bizScores, key=bizScores.get, reverse=True)[:k]
 			# normalize scores for a given user
 			for bid in topKBIds:
-				recs[(uid, bid)] = bizScores[bid] / float(max(bizScores.values()))
+				recs[tuple(sorted((uid, bid)))] = bizScores[bid] / float(max(bizScores.values()))
 		print recs
 		return recs
 
 	# Returns the top k recommendations for each user
-	def getRecommendations(self, G, k, weightedMeans=False, weightedBusinesses=False, scoreFunction=None):
+	def getRecommendations(self, k, weightedMeans=False, weightedBusinesses=False, scoreFunction=None):
 		# Loop through the businesses once to get attribute-vindex mapping
 		AttrToIndx = self.getAttrIndxMapping()
 		
 		# for each business, calculate vectorized form of business attributes
-		attrDict = self.getBusinessAttributes(G, AttrToIndx)
+		attrDict = self.getBusinessAttributes(AttrToIndx)
 		
 		# Get business recs for each user
-		return self.getBusinessRecs(G, attrDict, k, scoreFunction)
+		return self.getBusinessRecs(attrDict, k, scoreFunction)
 
 def main(argv):
-	# load user / business edge list into undirected graph
 	G = snap.LoadEdgeList(snap.PUNGraph, Const.review_edge_list, 0, 1)
-	Recommender = BizBasedRecs()
-	Recommender.getRecommendations(G, 1)
-	# for all unreviewed businesses, calculate the distance to mean
-	# return the k closest businesses
+	Recommender = BizBasedRecs(G)
+	Recommender.getRecommendations(1)
 
 if __name__ == '__main__':
 	main(sys.argv)
