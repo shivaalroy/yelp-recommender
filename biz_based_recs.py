@@ -20,6 +20,10 @@ class BizBasedRecs(object):
 		# for each business, calculate vectorized form of business attributes
 		self.__getBusinessAttributes()
 
+		# x = sorted([(index,attr) for attr,index in self.attrToIndx.iteritems()])
+		# for index,attr in x:
+		# 	print index,attr
+
 	# Returns a mapping from business attribues to vector indices
 	def __getAttrIndxMapping(self):
 		self.attrToIndx = {}
@@ -36,9 +40,11 @@ class BizBasedRecs(object):
 							self.attrToIndx[attr] = i
 							i += 1
 					elif attr == 'Good For' or attr == 'Ambience':
+						prefix = 'Good For ' if attr == 'Good For' else 'Ambience '
 						for item in val:
-							if item not in self.attrToIndx:
-								self.attrToIndx[item] = i
+							key = prefix + item
+							if key not in self.attrToIndx:
+								self.attrToIndx[key] = i
 								i += 1
 					elif attr == 'Price Range':
 						if attr not in self.attrToIndx:
@@ -73,8 +79,10 @@ class BizBasedRecs(object):
 					if type(val) == types.BooleanType: # TODO: non-bool/deeper attr
 						attrVec[self.attrToIndx[attr]] = float(val)
 					elif attr == 'Good For' or attr == 'Ambience':
+						prefix = 'Good For ' if attr == 'Good For' else 'Ambience '
 						for item in val:
-							attrVec[self.attrToIndx[item]] = float(val[item])
+							key = prefix + item
+							attrVec[self.attrToIndx[key]] = float(val[item])
 					elif attr == 'Price Range':
 						attrVec[self.attrToIndx[attr]] = float(val)
 
