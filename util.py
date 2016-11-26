@@ -26,4 +26,4 @@ def getNIdDict(infile):
 def getUserBizNIds(G, businesses):
 	userNIds = [NI.GetId() for NI in G.Nodes() if NI.GetId() not in businesses]
 	bizNIds = [NI.GetId() for NI in G.Nodes() if NI.GetId() in businesses]
-	return (userNIds, bizNIds)
+	return userNIds, bizNIds

@@ -14,9 +14,10 @@ from const import Const
 
 
 def deleteEdgeFromNode(graph, node):
+	# TODO loop over shuffled nodes and delete edge when rating is above threshold
 	nthNbr = int(random.random()*node.GetDeg())
 	bizNId = node.GetNbrNId(nthNbr)
-	edge = tuple(sorted((node.GetId(), node.GetNbrNId(nthNbr))))
+	edge = tuple(sorted((node.GetId(), bizNId)))
 	graph.DelEdge(edge[0], edge[1])
 	return edge
 
@@ -24,14 +25,21 @@ def deleteEdgeFromNode(graph, node):
 def main(argv):
 	G = snap.LoadEdgeList(snap.PUNGraph, Const.review_edge_list, 0, 1)
 	userNIds = list(util.getNIdDict(Const.review_mapping)[1])
+	print G.GetEdges()
 	deletedEdges = set(deleteEdgeFromNode(G, G.GetNI(NId)) for NId in userNIds)
 	print len(deletedEdges)
+	print G.GetEdges()
 	recommender = BizBasedRecs(G)
-	recommendations = recommender.getRecommendations(k=5)
+
+	recommendations = recommender.getBusinessRecs(k=50)
 	print len(recommendations)
 	diff = deletedEdges - set(recommendations)
 	print len(diff)
-	print len(diff) / float(len(deletedEdges))
+	print 1 - 1.0 * len(diff) / len(deletedEdges)
+
+	# for edge in deletedEdges:
+	# 	print edge
+	# 	print recommender.getEdgeScore(edge)
 
 
 if __name__ == '__main__': main(sys.argv)

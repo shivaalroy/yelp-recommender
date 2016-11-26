@@ -14,20 +14,21 @@ import util
 from const import Const
 
 
-def parseReview(json_infile, review_outfile, user_business_outfile, min_reviews):
+def parseReview(json_infile, review_outfile, user_business_outfile, min_reviews=0, min_stars=0):
 	reviews = []
 	user_ids = defaultdict(int)
 	with open(json_infile, 'r') as f:
 		for line in f:
 			review = loads(line)
-			reviews.append(review)
-			user_ids[review['user_id']] += 1
-	print 'Total Reviews:', len(reviews)
+			if int(review['stars']) >= min_stars:
+				user_ids[review['user_id']] += 1
+				reviews.append(review)
+	print 'Total Reviews with at least', min_stars ,'stars:', len(reviews)
 
 	if min_reviews:
-		user_ids = {key:val for key, val in  user_ids.iteritems() if val >= min_reviews}
-		reviews = [ review for review in reviews if review['user_id'] in user_ids ]
-		print 'Filtered Reviews:', len(reviews)
+		user_ids = set(key for key, val in  user_ids.iteritems() if val >= min_reviews)
+		reviews = [review for review in reviews if review['user_id'] in user_ids]
+		print 'Filtered Reviews by users with at least', min_reviews ,'reviews:', len(reviews)
 
 	business_ids = set()
 	edges = []
@@ -128,7 +129,7 @@ def main():
 		print 'Done parsing', Const.yelp_review, 'created'
 
 	print 'Parsing', Const.las_vegas_review
-	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, 25)
+	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_reviews=20, min_stars=3)
 	print 'Done parsing', Const.las_vegas_review
 
 	print 'Parsing', Const.yelp_user
