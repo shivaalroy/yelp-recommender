@@ -1,5 +1,5 @@
 """
-Evaluates a link-prediction algorithm
+Evaluates a link prediction algorithm
 """
 
 import numpy as np
@@ -9,7 +9,7 @@ import snap
 import sys
 import util
 
-from biz_based_recs import BizBasedRecs
+from user_centroid_model import LinkPredictorModel
 from const import Const
 
 
@@ -23,15 +23,13 @@ def deleteEdgeFromNode(graph, node):
 
 
 def main(argv):
+	print 'Evaluating centroid-based, top-k link prediction'
 	G = snap.LoadEdgeList(snap.PUNGraph, Const.review_edge_list, 0, 1)
 	userNIds = list(util.getNIdDict(Const.review_mapping)[1])
-	print G.GetEdges()
 	deletedEdges = set(deleteEdgeFromNode(G, G.GetNI(NId)) for NId in userNIds)
-	print len(deletedEdges)
-	print G.GetEdges()
-	recommender = BizBasedRecs(G)
+	recommender = LinkPredictorModel(G)
 
-	recommendations = recommender.getBusinessRecs(k=50)
+	recommendations = recommender.getBusinessRecs(k=10)
 	print len(recommendations)
 	diff = deletedEdges - set(recommendations)
 	print len(diff)

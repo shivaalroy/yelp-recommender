@@ -1,5 +1,4 @@
-# biz-based-recs.py
-# Provides business recommendations to users given their history of reviews
+# Provides business recommendations to users by creating an average centroid of restaurants for each user
 
 from const import Const
 from json import dumps, loads
@@ -12,7 +11,7 @@ import types
 import util
 
 
-class BizBasedRecs(object):
+class LinkPredictorModel(object):
 	def __init__(self, G):
 		self.G = G
 		# Loop through the businesses once to get attribute-vindex mapping
@@ -149,8 +148,8 @@ class BizBasedRecs(object):
 
 def main(argv):
 	G = snap.LoadEdgeList(snap.PUNGraph, Const.review_edge_list, 0, 1)
-	Recommender = BizBasedRecs(G)
-	Recommender.getRecommendations(1)
+	Recommender = LinkPredictorModel(G)
+	Recommender.getBusinessRecs(10)
 
 
 if __name__ == '__main__': main(sys.argv)

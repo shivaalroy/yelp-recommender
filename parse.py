@@ -107,19 +107,27 @@ def filterLocaleReviews(json_infile, locale_outfile):
 
 
 def createEdgeList(user_biz_infile, edge_outfile):
-	all_ids = set()
+	user_ids = set()
+	business_ids = set()
 	with open(user_biz_infile, 'r') as readFile, open(edge_outfile, 'w') as writeFile:
 		next(readFile) # skip heading
 		writeFile.write('#user_id\tbusiness_id\n')
 		reader = csv.reader(readFile, delimiter='\t')
 		for user_id, business_id in reader:
-			writeFile.write(str(util.getNId(user_id))+'\t'+str(util.getNId(business_id))+'\n')
+			user_ids.add(user_id)
+			business_ids.add(business_id)
+			writeFile.write(str(util.getNId(user_id, True))+'\t'+str(util.getNId(business_id, False))+'\n')
 
-	hash_ids = set()
-	for str_id in all_ids:
-		if util.GetNId(str_id) in hash_ids: exit('--------ERROR--------')
-		hash_ids.add(util.getNId(user_id))
-		hash_ids.add(util.getNId(business_id))
+	hash_ids = {}
+	for user_id in user_ids:
+		if util.getNId(user_id, True) in hash_ids:
+			print '--ERROR-- user', hash_ids[util.getNId(user_id, True)], user_id
+		hash_ids[util.getNId(user_id, True)] = user_id
+
+	for business_id in business_ids:
+		if util.getNId(business_id, False) in hash_ids:
+			print '--ERROR-- business', hash_ids[util.getNId(business_id, False)], business_id
+		hash_ids[util.getNId(business_id, False)] = business_id
 
 
 def main():
@@ -129,7 +137,7 @@ def main():
 		print 'Done parsing', Const.yelp_review, 'created'
 
 	print 'Parsing', Const.las_vegas_review
-	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_reviews=20, min_stars=3)
+	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_reviews=100, min_stars=4)
 	print 'Done parsing', Const.las_vegas_review
 
 	print 'Parsing', Const.yelp_user
