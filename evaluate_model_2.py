@@ -26,14 +26,14 @@ def main():
 	userNIds = list(util.getUserNIdDict(Const.review_mapping))
 	deletedEdges = set(deleteEdgeFromNode(G, G.GetNI(NId)) for NId in userNIds)
 
-	alpha_range = [0.1, 0.2, 0.3, 0.4, 0.5]
 	n_iters_range = [500, 1000, 2000, 5000]
+	alpha_range = [0.1, 0.2, 0.3, 0.4, 0.5]
 	grid = {}
 	for n_iters in n_iters_range:
 		for alpha in alpha_range:
 			print 'Running with n_iters=%d, alpha=%f' % (n_iters, alpha)
 			accuracies = []
-			for _ in xrange(100):
+			for _ in xrange(50):
 				recommender = LinkPredictorModel(G, userNIds, n_iters=n_iters, alpha=alpha)
 				recommendations = recommender.getBusinessRecs(10)
 				diff = deletedEdges - set(recommendations)
