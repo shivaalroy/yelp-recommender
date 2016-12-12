@@ -34,18 +34,20 @@ def main():
 			print 'Running with n_iters=%d, alpha=%f' % (n_iters, alpha)
 			accuracies = []
 			for _ in xrange(50):
-				recommender = LinkPredictorModel(G, userNIds, n_iters=n_iters, alpha=alpha)
-				# recommendations = recommender.getBusinessRecs(10)
-
-				recommendations = recommender.getBusinessRecs(10, powerIteration=True)
-				return
-
+				recommender = LinkPredictorModel(G, alpha)
+				recommendations = recommender.getBusinessRecs(10, userNIds, n_iters=n_iters)
 				diff = deletedEdges - set(recommendations)
 				accuracy = 1 - 1.0 * len(diff) / len(deletedEdges)
 				accuracies.append(accuracy)
 			grid[(n_iters,alpha)] = np.average(accuracies)
 			print np.average(accuracies)
 	print grid
+
+	# recommender = LinkPredictorModel(G, alpha=0.4)
+	# recommendations = recommender.getBusinessRecs(10, userNIds, powerIteration=True)
+	# diff = deletedEdges - set(recommendations)
+	# accuracy = 1 - 1.0 * len(diff) / len(deletedEdges)
+	# print accuracy
 
 
 if __name__ == '__main__': main()

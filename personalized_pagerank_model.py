@@ -10,12 +10,9 @@ import snap
 from const import Const
 
 class LinkPredictorModel(object):
-	def __init__(self, G, user_nids, n_iters, alpha):
+	def __init__(self, G, alpha):
 		self.G = G
-		self.user_nids = user_nids
-		self.n_iters = n_iters
 		self.alpha = alpha
-		# print 'Running with n_iters=%d, alpha=%f' % (n_iters, alpha)
 
 	def _getNbrNodeIds(self, nid, BG=False):
 		if BG:
@@ -125,24 +122,24 @@ class LinkPredictorModel(object):
 			if np.allclose(p, p_old): break
 		return p
 
-	def getBusinessRecs(self, k, powerIteration=False):
+	def getBusinessRecs(self, k, user_nids, n_iters=500, powerIteration=False):
 			recs = {}
+			if powerIteration:
+				self._getBusinessGraph()
+			else:
+				self.n_iters = n_iters
 			# loop over user ids
-			for user_nid in self.user_nids:
+			for user_nid in user_nids:
 				start_set = self._getNbrNodeIds(user_nid)
 				# get personalized pagerank scores
 				if powerIteration:
-					self._getBusinessGraph()
 					# get all businesses n hops away from start set
 					extended_set = self._getExtendedSet(start_set, n=1)
-					# # get Q'
-					self._getQprime(extended_set)
-					# # get Q
-					self._getQ(start_set)
+					self._getQprime(extended_set) # get Q'
+					self._getQ(start_set) # get Q
 
 					p = self._powerIteration(5)
-
-					scores = {self._getGNodeId(business_id) for business_id, score in enumerate(p)}
+					scores = {self._getGNodeId(business_id): score for business_id, score in enumerate(p)}
 				else:
 					scores = defaultdict(float)
 					self._getPagerankScores(start_set, scores)
