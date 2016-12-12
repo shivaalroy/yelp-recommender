@@ -1,5 +1,5 @@
 """
-Evaluates a link prediction algorithm
+Evaluates the personalized pagerank link prediction algorithm
 """
 
 import numpy as np
@@ -35,7 +35,11 @@ def main():
 			accuracies = []
 			for _ in xrange(50):
 				recommender = LinkPredictorModel(G, userNIds, n_iters=n_iters, alpha=alpha)
-				recommendations = recommender.getBusinessRecs(10)
+				# recommendations = recommender.getBusinessRecs(10)
+
+				recommendations = recommender.getBusinessRecs(10, powerIteration=True)
+				return
+
 				diff = deletedEdges - set(recommendations)
 				accuracy = 1 - 1.0 * len(diff) / len(deletedEdges)
 				accuracies.append(accuracy)

@@ -77,7 +77,7 @@ def parseBusiness(json_infile, business_outfile, business_ids):
 	with open(json_infile, 'r') as f:
 		for line in f:
 			business = loads(line)
-			if ('Restaurants' in business['categories']) and (business['city'] == 'Las Vegas'):
+			if 'Restaurants' in business['categories'] and business['city'] == 'Las Vegas' and business['business_id'] in business_ids:
 				businesses.append(business)
 	print 'Total Restaurants:', len(businesses)
 
@@ -137,7 +137,7 @@ def main():
 		print 'Done parsing, created', Const.las_vegas_review
 
 	print 'Parsing', Const.las_vegas_review
-	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_reviews=100, min_stars=3)
+	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_reviews=150, min_stars=4)
 	print 'Done parsing', Const.las_vegas_review
 
 	print 'Parsing', Const.yelp_user
