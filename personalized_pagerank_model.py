@@ -71,17 +71,15 @@ class LinkPredictorModel(object):
 		print 'Done creating business-to-business graph'
 
 	def _getExtendedSet(self, start_set, n):
-		extended_set = set([self._getBGNodeId(nid) for nid in start_set])
+		extended_set = set(start_set)
 		for _ in xrange(n):
 			temp = set()
 			for bgnid in extended_set:
 				temp |= set(self._getNbrNodeIds(bgnid, True))
 			extended_set |= temp
-			print len(extended_set)
 		return extended_set
 
 	def _getQprime(self, extended_set):
-		print 'Creating adjacency matrix'
 		row = []
 		col = []
 		data = []
@@ -96,8 +94,6 @@ class LinkPredictorModel(object):
 			data.append(weight)
 		self.Qprime = csr_matrix((data, (row,col)), shape=(self.BG.GetNodes(),self.BG.GetNodes()), dtype=np.float64)
 		normalize(self.Qprime, norm='l1', axis=1, copy=False)
-		print self.Qprime.count_nonzero()
-		print 'Done creating adjacency matrix'
 
 	def _getIncrementColMatrix(self, j, val):
 		size = self.Qprime.get_shape()[0]
@@ -110,16 +106,16 @@ class LinkPredictorModel(object):
 		self.Q = self.Qprime * (1 - self.alpha)
 		for bgnid in [self._getBGNodeId(nid) for nid in start_set]:
 			self.Q += self._getIncrementColMatrix(bgnid, self.alpha)
-		print self.Q.count_nonzero()
 
 	def _powerIteration(self, n):
+		print 'Starting power iteration'
 		size = self.Q.get_shape()[0]
 		p = [1.0 / size]*size
 		for i in xrange(n):
-			print i
 			self.Q *= self.Q
 			p, p_old = self.Q * p , p
 			if np.allclose(p, p_old): break
+		print 'Finished power iteration'
 		return p
 
 	def getBusinessRecs(self, k, user_nids, n_iters=500, powerIteration=False):
@@ -134,12 +130,13 @@ class LinkPredictorModel(object):
 				# get personalized pagerank scores
 				if powerIteration:
 					# get all businesses n hops away from start set
-					extended_set = self._getExtendedSet(start_set, n=1)
+					start_set_bg_ids = set([self._getBGNodeId(nid) for nid in start_set])
+					extended_set = self._getExtendedSet(start_set_bg_ids, n=1)
 					self._getQprime(extended_set) # get Q'
 					self._getQ(start_set) # get Q
 
 					p = self._powerIteration(5)
-					scores = {self._getGNodeId(business_id): score for business_id, score in enumerate(p)}
+					scores = {self._getGNodeId(business_id): score for business_id, score in enumerate(p) if business_id not in start_set_bg_ids}
 				else:
 					scores = defaultdict(float)
 					self._getPagerankScores(start_set, scores)
@@ -147,7 +144,6 @@ class LinkPredictorModel(object):
 				topKBusinessNIds = sorted(scores, key=scores.get, reverse=True)[:k]
 				for business_nid in topKBusinessNIds:
 					recs[tuple(sorted((user_nid, business_nid)))] = scores[business_nid]
-			# print 'Returning k=%d recommendations per user' % k
 			return recs
 
 

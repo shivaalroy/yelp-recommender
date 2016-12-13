@@ -137,7 +137,7 @@ def main():
 		print 'Done parsing, created', Const.las_vegas_review
 
 	print 'Parsing', Const.las_vegas_review
-	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_reviews=150, min_stars=4)
+	user_ids, business_ids = parseReview(Const.las_vegas_review, Const.curated_review, Const.review_mapping, min_stars=4, min_reviews=100)
 	print 'Done parsing', Const.las_vegas_review
 
 	print 'Parsing', Const.yelp_user
